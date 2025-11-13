@@ -124,17 +124,16 @@ For a detailed API reference, see the [API_REFERENCE.md](docs/api/REFERENCE.md) 
 
 ## 🐳 Deployment
 
-MUTT supports multiple deployment options:
+MUTT supports multiple deployment options. For a quick local setup using Docker, see the [QUICKSTART.md](QUICKSTART.md) guide.
 
-- **Docker Compose**: Quick development setup (see [QUICKSTART.md](QUICKSTART.md))
-- **Kubernetes**: Production deployment (see [deployments/kubernetes/](deployments/kubernetes/))
-- **SystemD (RHEL/Ubuntu)**: Bare metal deployment
-  - RHEL: `deployments/scripts/deploy_rhel.sh`
-  - Ubuntu: `deployments/scripts/deploy_ubuntu.sh`
+For production or bare-metal environments, we provide comprehensive guides for RHEL and Ubuntu systems:
 
-For comprehensive deployment instructions, see:
-- [docs/REBUILD_GUIDE.md](docs/REBUILD_GUIDE.md) - Complete rebuild documentation
-- [docs/architecture/DEPLOYMENT_ARCHITECTURE.md](docs/architecture/DEPLOYMENT_ARCHITECTURE.md) - Architecture details
+- **[Ubuntu Deployment Guide](docs/UBUNTU_DEPLOYMENT_GUIDE.md)**
+- **[RHEL Deployment Guide](docs/RHEL_DEPLOYMENT_GUIDE.md)**
+
+For other deployment methods and architectural details, see:
+- **Kubernetes**: [deployments/kubernetes/](deployments/kubernetes/)
+- **Deployment Architecture**: [docs/architecture/DEPLOYMENT_ARCHITECTURE.md](docs/architecture/DEPLOYMENT_ARCHITECTURE.md)
 
 ---
 
