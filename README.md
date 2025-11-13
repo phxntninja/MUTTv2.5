@@ -126,8 +126,9 @@ For a detailed API reference, see the [API_REFERENCE.md](docs/api/REFERENCE.md) 
 
 MUTT supports multiple deployment options. For a quick local setup using Docker, see the [QUICKSTART.md](QUICKSTART.md) guide.
 
-For production or bare-metal environments, we provide comprehensive guides for RHEL and Ubuntu systems:
+For production or bare-metal environments, we provide comprehensive guides for several Linux distributions:
 
+- **[Debian Deployment Guide](docs/DEBIAN_DEPLOYMENT_GUIDE.md)**
 - **[Ubuntu Deployment Guide](docs/UBUNTU_DEPLOYMENT_GUIDE.md)**
 - **[RHEL Deployment Guide](docs/RHEL_DEPLOYMENT_GUIDE.md)**
 

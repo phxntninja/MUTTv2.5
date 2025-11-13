@@ -1,6 +1,6 @@
 #!/bin/bash
-# File: deployments/scripts/deploy_ubuntu.sh
-# MUTT v2.5 Ubuntu Deployment Script
+# File: deployments/scripts/deploy_debian.sh
+# MUTT v2.5 Debian Deployment Script
 
 set -e
 
@@ -9,24 +9,23 @@ MUTT_GROUP="mutt"
 MUTT_HOME="/opt/mutt"
 PYTHON_VERSION="3.10"
 
-echo "=== MUTT v2.5 Ubuntu Deployment ==="
+echo "=== MUTT v2.5 Debian Deployment ==="
 
 # 1. Check Python 3.10 availability
 if ! command -v python${PYTHON_VERSION} &> /dev/null; then
     echo "ERROR: Python ${PYTHON_VERSION} not found!"
     echo "Install it using:"
     echo "  sudo apt update"
-    echo "  sudo apt install software-properties-common"
+    echo "  sudo apt install -y software-properties-common"
     echo "  sudo add-apt-repository ppa:deadsnakes/ppa"
     echo "  sudo apt update"
-    echo "  sudo apt install python${PYTHON_VERSION} python${PYTHON_VERSION}-venv"
+    echo "  sudo apt install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-venv"
     exit 1
 fi
 
 # 2. Create user and group
 if ! id "$MUTT_USER" &>/dev/null; then
     echo "Creating mutt user..."
-    # Ubuntu useradd syntax (same as RHEL for these flags)
     sudo useradd --system --home-dir "$MUTT_HOME" --shell /bin/bash --create-home "$MUTT_USER"
 fi
 
@@ -67,10 +66,6 @@ echo "Configuring firewall..."
 if command -v ufw &> /dev/null; then
     # Allow Web UI port
     sudo ufw allow 8090/tcp comment "MUTT Web UI"
-
-    # Allow metrics ports (if exposing externally)
-    # sudo ufw allow 9090:9094/tcp comment "MUTT Metrics"
-
     echo "Firewall rules added. Enable ufw with: sudo ufw enable"
 else
     echo "WARNING: ufw not installed. Install with: sudo apt install ufw"
