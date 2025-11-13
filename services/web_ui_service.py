@@ -666,6 +666,7 @@ def create_app() -> Flask:
       # ================================================================
 
       @app.route('/api/v1/metrics', methods=['GET'])
+      @app.route('/api/v2/metrics', methods=['GET'])
       @require_api_key
       def get_api_metrics():
           """
@@ -752,6 +753,7 @@ def create_app() -> Flask:
       # ================================================================
 
       @app.route('/api/v1/config', methods=['GET'])
+      @app.route('/api/v2/config', methods=['GET'])
       @require_api_key
       def get_dynamic_config():
           """List all dynamic configuration values."""
@@ -767,6 +769,7 @@ def create_app() -> Flask:
               return jsonify({"error": str(e)}), 500
 
       @app.route('/api/v1/config/<key>', methods=['PUT'])
+      @app.route('/api/v2/config/<key>', methods=['PUT'])
       @require_api_key
       def update_dynamic_config(key: str):
           """Update a specific dynamic configuration value and audit the change."""
@@ -834,6 +837,7 @@ def create_app() -> Flask:
               return jsonify({"error": str(e)}), 500
 
       @app.route('/api/v1/config/history', methods=['GET'])
+      @app.route('/api/v2/config/history', methods=['GET'])
       @require_api_key
       def get_dynamic_config_history():
           """Return recent dynamic configuration change history from config_audit_log."""
@@ -895,6 +899,7 @@ def create_app() -> Flask:
       # ================================================================
 
       @app.route('/api/v1/version', methods=['GET'])
+      @app.route('/api/v2/version', methods=['GET'])
       def get_version():
           """
           Get API version information.
@@ -919,6 +924,7 @@ def create_app() -> Flask:
       # ================================================================
 
       @app.route('/api/v1/slo', methods=['GET'])
+      @app.route('/api/v2/slo', methods=['GET'])
       @require_api_key
       def get_slo():
           """Return current SLO status for key components."""
@@ -1037,6 +1043,7 @@ def create_app() -> Flask:
           return result
 
       @app.route('/api/v1/rules', methods=['GET'])
+      @app.route('/api/v2/rules', methods=['GET'])
       @require_api_key
       def get_rules():
           """Get all alert rules."""
@@ -1070,6 +1077,7 @@ def create_app() -> Flask:
                       db_pool.putconn(conn)
 
       @app.route('/api/v1/rules/<int:rule_id>', methods=['GET'])
+      @app.route('/api/v2/rules/<int:rule_id>', methods=['GET'])
       @require_api_key
       def get_rule(rule_id):
           """Get a specific alert rule."""
@@ -1097,6 +1105,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/rules', methods=['POST'])
+      @app.route('/api/v2/rules', methods=['POST'])
       @require_api_key
       def create_rule():
           """Create a new alert rule."""
@@ -1187,6 +1196,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/rules/<int:rule_id>', methods=['PUT'])
+      @app.route('/api/v2/rules/<int:rule_id>', methods=['PUT'])
       @require_api_key
       def update_rule(rule_id):
           """Update an existing alert rule."""
@@ -1275,6 +1285,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/rules/<int:rule_id>', methods=['DELETE'])
+      @app.route('/api/v2/rules/<int:rule_id>', methods=['DELETE'])
       @require_api_key
       def delete_rule(rule_id):
           """Delete an alert rule."""
@@ -1355,6 +1366,8 @@ def create_app() -> Flask:
       # ================================================================
 
       @app.route('/api/v1/audit', methods=['GET'])
+      @app.route('/api/v2/audit', methods=['GET'])
+      @app.route('/api/v2/config-audit', methods=['GET'])
       @require_api_key
       def get_config_audit_logs():
           # Apply optional versioning decorator at runtime if available
@@ -1433,6 +1446,7 @@ def create_app() -> Flask:
                       db_pool.putconn(conn)
 
       @app.route('/api/v1/audit-logs', methods=['GET'])
+      @app.route('/api/v2/audit-logs', methods=['GET'])
       @require_api_key
       def get_audit_logs():
           """
@@ -1524,6 +1538,7 @@ def create_app() -> Flask:
       # ================================================================
 
       @app.route('/api/v1/dev-hosts', methods=['GET'])
+      @app.route('/api/v2/dev-hosts', methods=['GET'])
       @require_api_key
       def get_dev_hosts():
           """Get all development hosts."""
@@ -1548,6 +1563,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/dev-hosts', methods=['POST'])
+      @app.route('/api/v2/dev-hosts', methods=['POST'])
       @require_api_key
       def add_dev_host():
           """Add a development host."""
@@ -1590,6 +1606,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/dev-hosts/<hostname>', methods=['DELETE'])
+      @app.route('/api/v2/dev-hosts/<hostname>', methods=['DELETE'])
       @require_api_key
       def delete_dev_host(hostname):
           """Delete a development host."""
@@ -1625,6 +1642,7 @@ def create_app() -> Flask:
       # ================================================================
 
       @app.route('/api/v1/teams', methods=['GET'])
+      @app.route('/api/v2/teams', methods=['GET'])
       @require_api_key
       def get_teams():
           """Get all device team mappings."""
@@ -1649,6 +1667,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/teams', methods=['POST'])
+      @app.route('/api/v2/teams', methods=['POST'])
       @require_api_key
       def add_team_mapping():
           """Add a device team mapping."""
@@ -1692,6 +1711,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/teams/<hostname>', methods=['PUT'])
+      @app.route('/api/v2/teams/<hostname>', methods=['PUT'])
       @require_api_key
       def update_team_mapping(hostname):
           """Update a device team mapping."""
@@ -1732,6 +1752,7 @@ def create_app() -> Flask:
                   db_pool.putconn(conn)
 
       @app.route('/api/v1/teams/<hostname>', methods=['DELETE'])
+      @app.route('/api/v2/teams/<hostname>', methods=['DELETE'])
       @require_api_key
       def delete_team_mapping(hostname):
           """Delete a device team mapping."""

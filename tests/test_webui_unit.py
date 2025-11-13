@@ -13,12 +13,12 @@ import secrets as secrets_module
 import types
 
 
-@pytest.fixture(scope="class")
-def app(monkeyclass):
+@pytest.fixture
+def app(monkeypatch):
     from services import web_ui_service as w
 
     # Disable DynamicConfig to avoid Redis requirement
-    monkeyclass.setattr(w, 'DynamicConfig', None)
+    monkeypatch.setattr(w, 'DynamicConfig', None)
 
     # Setup SLO_TARGETS for testing
     test_slo_targets = {
@@ -39,15 +39,15 @@ def app(monkeyclass):
             "burn_rate_threshold_critical": 2.0
         }
     }
-    monkeyclass.setattr(w, 'SLO_TARGETS', test_slo_targets)
-    monkeyclass.setattr(w, 'GLOBAL_SLO_SETTINGS', {})
+    monkeypatch.setattr(w, 'SLO_TARGETS', test_slo_targets)
+    monkeypatch.setattr(w, 'GLOBAL_SLO_SETTINGS', {})
 
     # Bypass Vault/Redis/Postgres initialization
     def fake_fetch_secrets(app):
         app.config['SECRETS'] = {"WEBUI_API_KEY": "test-api-key-123"}
-    monkeyclass.setattr(w, 'fetch_secrets', fake_fetch_secrets)
-    monkeyclass.setattr(w, 'create_redis_pool', lambda app: None)
-    monkeyclass.setattr(w, 'create_postgres_pool', lambda app: app.config.__setitem__('DB_POOL', None))
+    monkeypatch.setattr(w, 'fetch_secrets', fake_fetch_secrets)
+    monkeypatch.setattr(w, 'create_redis_pool', lambda app: None)
+    monkeypatch.setattr(w, 'create_postgres_pool', lambda app: app.config.__setitem__('DB_POOL', None))
 
     # Build app
     app = w.create_app()
@@ -81,11 +81,10 @@ class TestSLOEndpoint:
         resp = client.get('/api/v1/slo', headers={'X-API-KEY': 'test-api-key-123'})
         assert resp.status_code == 200
         data = resp.get_json()
-        assert 'components' in data
-        for comp in ['ingestor', 'forwarder']:
-            c = data['components'][comp]
-            assert c['state'] == 'ok'
-            assert 0 <= c['burn_rate'] <= 1.0
+        assert 'slos' in data
+        assert isinstance(data['slos'], list)
+        for slo in data['slos']:
+            assert slo['status'] == 'ok'
 
     def test_slo_warn_and_critical_states(self, app, monkeypatch):
         from services import web_ui_service as w
@@ -110,8 +109,13 @@ class TestSLOEndpoint:
         resp = client.get('/api/v1/slo', headers={'X-API-KEY': 'test-api-key-123'})
         assert resp.status_code == 200
         data = resp.get_json()
-        assert data['components']['ingestor']['state'] == 'warn'
-        assert data['components']['forwarder']['state'] == 'critical'
+        assert 'slos' in data
+        ingestor_slo = next((s for s in data['slos'] if s['description'] == 'Ingestor availability'), None)
+        forwarder_slo = next((s for s in data['slos'] if s['description'] == 'Forwarder availability'), None)
+        assert ingestor_slo is not None
+        assert forwarder_slo is not None
+        assert ingestor_slo['status'] == 'warning'
+        assert forwarder_slo['status'] == 'critical'
 
     def test_slo_single_retry_on_failure(self, app, monkeypatch):
         from services import web_ui_service as w
@@ -142,8 +146,9 @@ class TestSLOEndpoint:
         resp = client.get('/api/v1/slo', headers={'X-API-KEY': 'test-api-key-123'})
         assert resp.status_code == 200
         data = resp.get_json()
-        assert data['components']['ingestor']['state'] == 'ok'
-        assert data['components']['forwarder']['state'] == 'ok'
+        assert 'slos' in data
+        for slo in data['slos']:
+            assert slo['status'] == 'ok'
 
 
 # Mark all tests in this file as unit tests

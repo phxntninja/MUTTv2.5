@@ -5,13 +5,13 @@ import pytest
 pytestmark = pytest.mark.integration
 
 
-@pytest.fixture(scope="class")
-def app(monkeyclass):
+@pytest.fixture
+def app(monkeypatch):
     import services.web_ui_service as webui
 
     # Minimal env to satisfy Config validation
-    monkeyclass.setenv("VAULT_ADDR", "http://localhost:8200")
-    monkeyclass.setenv("VAULT_ROLE_ID", "test-role")
+    monkeypatch.setenv("VAULT_ADDR", "http://localhost:8200")
+    monkeypatch.setenv("VAULT_ROLE_ID", "test-role")
 
     # Avoid real Vault and pools
     def fake_fetch_secrets(app):
@@ -24,14 +24,14 @@ def app(monkeyclass):
             "DB_PASS": "db",
             "DB_PASS_CURRENT": "db",
         }
-    monkeyclass.setattr(webui, "fetch_secrets", fake_fetch_secrets)
+    monkeypatch.setattr(webui, "fetch_secrets", fake_fetch_secrets)
 
     # Stub pools
     def fake_create_redis_pool(app):
         class DummyPool:
             pass
         app.redis_pool = DummyPool()
-    monkeyclass.setattr(webui, "create_redis_pool", fake_create_redis_pool)
+    monkeypatch.setattr(webui, "create_redis_pool", fake_create_redis_pool)
 
     def fake_create_postgres_pool(app):
         class DummyPool:
@@ -40,7 +40,7 @@ def app(monkeyclass):
             def putconn(self, _):
                 return None
         app.config['DB_POOL'] = DummyPool()
-    monkeyclass.setattr(webui, "create_postgres_pool", fake_create_postgres_pool)
+    monkeypatch.setattr(webui, "create_postgres_pool", fake_create_postgres_pool)
 
     # Use an in-memory DynamicConfig simulation
     class FakeDyn:
@@ -54,10 +54,10 @@ def app(monkeyclass):
             return self.store.get(key, default)
         def set(self, key, value, notify=True):
             self.store[key] = str(value)
-    monkeyclass.setattr(webui, "DynamicConfig", FakeDyn)
+    monkeypatch.setattr(webui, "DynamicConfig", FakeDyn)
 
     # Stub redis.Redis used by DynamicConfig init paths
-    monkeyclass.setattr(webui, "redis", type("R", (), {"Redis": staticmethod(lambda **kwargs: object())}))
+    monkeypatch.setattr(webui, "redis", type("R", (), {"Redis": staticmethod(lambda **kwargs: object())}))
 
     app = webui.create_app()
     app.testing = True

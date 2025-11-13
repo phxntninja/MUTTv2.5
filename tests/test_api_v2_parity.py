@@ -9,19 +9,74 @@ These tests monkeypatch DB/Redis to avoid external dependencies.
 import pytest
 
 
-@pytest.fixture(scope="class")
-def app(monkeyclass):
+class FakeCursor:
+    def __init__(self, rows=None):
+        self._rows = rows if rows is not None else []
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc, tb):
+        return False
+    def execute(self, query, params=None):
+        pass
+    def fetchone(self):
+        return (len(self._rows),)
+    def fetchall(self):
+        return self._rows
+
+class FakeConn:
+    def __init__(self, rows=None):
+        self._rows = rows
+    def cursor(self, *args, **kwargs):
+        return FakeCursor(self._rows)
+    def commit(self):
+        pass
+    def rollback(self):
+        pass
+
+class FakePool:
+    def __init__(self, rows=None):
+        self._rows = rows
+    def getconn(self):
+        return FakeConn(self._rows)
+    def putconn(self, _):
+        pass
+
+class FakeRedis:
+    def __init__(self, *args, **kwargs):
+        self.store = {}
+    def get(self, key):
+        return self.store.get(key)
+    def set(self, key, value, *args, **kwargs):
+        self.store[key] = value
+    def hgetall(self, *args, **kwargs):
+        return {}
+    def llen(self, *args, **kwargs):
+        return 0
+    def scan_iter(self, *args, **kwargs):
+        yield from []
+    def mget(self, keys, *args, **kwargs):
+        return [self.store.get(k) for k in keys]
+
+class DummyRedisModule:
+    Redis = FakeRedis
+    class exceptions:
+        class ConnectionError(Exception):
+            pass
+
+
+@pytest.fixture
+def app(monkeypatch):
     from services import web_ui_service as w
 
     # Disable DynamicConfig to avoid Redis requirement
-    monkeyclass.setattr(w, 'DynamicConfig', None)
+    monkeypatch.setattr(w, 'DynamicConfig', None)
 
     # Bypass Vault/Redis/Postgres initialization
     def fake_fetch_secrets(app):
         app.config['SECRETS'] = {"WEBUI_API_KEY": "test-api-key-123"}
-    monkeyclass.setattr(w, 'fetch_secrets', fake_fetch_secrets)
-    monkeyclass.setattr(w, 'create_redis_pool', lambda app: None)
-    monkeyclass.setattr(w, 'create_postgres_pool', lambda app: app.config.__setitem__('DB_POOL', None))
+    monkeypatch.setattr(w, 'fetch_secrets', fake_fetch_secrets)
+    monkeypatch.setattr(w, 'create_redis_pool', lambda app: setattr(app, 'redis_pool', object()))
+    monkeypatch.setattr(w, 'create_postgres_pool', lambda app: app.config.__setitem__('DB_POOL', None))
 
     # Build app
     app = w.create_app()
@@ -71,7 +126,7 @@ class TestV2Parity:
         # Monkeypatch redis client used by web_ui_service
         class DummyRedisModule:
             Redis = FakeRedis
-        monkeypatch.setattr(app, 'redis', DummyRedisModule())
+        monkeypatch.setattr('services.web_ui_service.redis', DummyRedisModule())
 
         client = app.test_client()
         headers = {'X-API-KEY': 'test-api-key-123'}

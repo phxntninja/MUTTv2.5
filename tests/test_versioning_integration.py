@@ -18,8 +18,8 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'services'))
 
 
-@pytest.fixture(scope="class")
-def app(monkeyclass):
+@pytest.fixture
+def app(monkeypatch):
     """Fixture to create the Flask app once per test class."""
     from services.web_ui_service import create_app
     with patch('services.web_ui_service.fetch_secrets'), \
@@ -89,7 +89,7 @@ class TestVersionNegotiation:
         )
 
         assert response.status_code == 200
-        assert response.headers.get('X-API-Version') == '2.0'
+        assert response.headers.get('X-API-Version') == '2.5'
 
     def test_x_api_version_header_negotiation(self, app):
         """Test version negotiation via X-API-Version header"""
