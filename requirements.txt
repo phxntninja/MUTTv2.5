@@ -24,7 +24,7 @@ pysnmp==4.4.12
 requests==2.32.5
 
 # Monitoring
-prometheus-client==0.18.0
+prometheus-client==0.23.1
 prometheus-flask-exporter==0.23.0
 
 # =====================================================================
