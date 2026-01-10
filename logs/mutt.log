@@ -1,0 +1,41 @@
+2026-01-09 21:44:06 | INFO | __main__ | Starting MUTT daemon
+2026-01-09 21:44:06 | INFO | mutt.processors.message_processor | MessageProcessor components initialized
+2026-01-09 21:44:06 | ERROR | __main__ | Failed to start message processor: unable to open database file
+2026-01-09 21:44:06 | ERROR | __main__ | Fatal error in MUTT daemon: unable to open database file
+Traceback (most recent call last):
+  File "/home/ronhill/Documents/Coding_folders/MUTTv2.5/mutt/daemon.py", line 54, in main
+    await self._start_processor()
+  File "/home/ronhill/Documents/Coding_folders/MUTTv2.5/mutt/daemon.py", line 135, in _start_processor
+    await self.processor.start()
+  File "/home/ronhill/Documents/Coding_folders/MUTTv2.5/mutt/processors/message_processor.py", line 119, in start
+    await self.database.initialize()
+  File "/home/ronhill/Documents/Coding_folders/MUTTv2.5/mutt/storage/database.py", line 45, in initialize
+    self.connection = await aiosqlite.connect(self.db_path)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ronhill/Documents/Coding_folders/MUTTv2.5/.venv/lib/python3.12/site-packages/aiosqlite/core.py", line 168, in _connect
+    self._connection = await future
+                       ^^^^^^^^^^^^
+  File "/home/ronhill/Documents/Coding_folders/MUTTv2.5/.venv/lib/python3.12/site-packages/aiosqlite/core.py", line 63, in _connection_worker_thread
+    result = function()
+             ^^^^^^^^^^
+  File "/home/ronhill/Documents/Coding_folders/MUTTv2.5/.venv/lib/python3.12/site-packages/aiosqlite/core.py", line 466, in connector
+    return sqlite3.connect(loc, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: unable to open database file
+2026-01-09 21:44:06 | INFO | __main__ | Initiating graceful shutdown...
+2026-01-09 21:44:06 | INFO | mutt.processors.message_processor | Performing final flush before shutdown
+2026-01-09 21:44:06 | INFO | mutt.processors.message_processor | MessageProcessor stopped
+2026-01-09 21:44:06 | INFO | __main__ | MUTT daemon shutdown complete
+2026-01-09 21:45:05 | INFO | __main__ | Starting MUTT daemon
+2026-01-09 21:45:05 | INFO | mutt.processors.message_processor | MessageProcessor components initialized
+2026-01-09 21:45:05 | INFO | mutt.processors.message_processor | MessageProcessor started with 3 background tasks
+2026-01-09 21:45:05 | INFO | __main__ | Message processor started
+2026-01-09 21:45:05 | INFO | mutt.processors.message_processor | Message processing loop started
+2026-01-09 21:45:05 | INFO | mutt.processors.message_processor | Batch write loop started with 10s interval
+2026-01-09 21:45:05 | INFO | mutt.processors.message_processor | Archive loop started with daily interval, retention: 30 days
+2026-01-09 21:45:05 | INFO | mutt.listeners.syslog_listener | Syslog listener started on 0.0.0.0:5514
+2026-01-09 21:45:05 | INFO | __main__ | Syslog listener started on 0.0.0.0:5514
+2026-01-09 21:45:05 | INFO | mutt.listeners.snmp_listener | SNMP listener started on 0.0.0.0:5162
+2026-01-09 21:45:05 | INFO | __main__ | SNMP listener started on 0.0.0.0:5162
+2026-01-09 21:45:05 | INFO | __main__ | MUTT daemon is running
+2026-01-09 21:46:05 | INFO | mutt.processors.message_processor | Batch write: flushed 1 messages to database

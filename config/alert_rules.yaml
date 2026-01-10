@@ -1,0 +1,5 @@
+rules:
+  - name: "Critical Auth Failures"
+    pattern: "authentication failure"
+    type: "KEYWORD"
+    actions: ["STORE"]

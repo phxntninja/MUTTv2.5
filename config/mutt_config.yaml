@@ -1,0 +1,5 @@
+network:
+  syslog_port: 5514
+  snmp_port: 162
+storage:
+  db_path: "data/messages.db"
