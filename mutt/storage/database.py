@@ -126,3 +126,34 @@ class Database:
                 ))
                     
             return messages
+
+    async def get_snmpv3_auth_failures(self) -> List[Dict[str, Any]]:
+        """
+        Get all SNMPv3 authentication failures for web UI display.
+        
+        Returns:
+            List of dictionaries containing failure details.
+        """
+        if not self.connection:
+            return []
+        
+        try:
+            async with self.connection.execute("""
+                SELECT username, hostname, num_failures, last_failure
+                FROM snmpv3_auth_failures
+                ORDER BY num_failures DESC, last_failure DESC
+            """) as cursor:
+                rows = await cursor.fetchall()
+                
+            return [
+                {
+                    'username': row[0],
+                    'hostname': row[1],
+                    'num_failures': row[2],
+                    'last_failure': row[3]
+                }
+                for row in rows
+            ]
+        except Exception as e:
+            logger.error(f"[Database] Error fetching auth failures: {e}")
+            return []

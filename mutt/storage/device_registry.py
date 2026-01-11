@@ -2,7 +2,7 @@
 Device registry for storing and updating device information.
 """
 
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional
 
 from mutt.storage.database import Database
@@ -35,7 +35,7 @@ class DeviceRegistry:
             hostname: Optional hostname of the device
             snmp_version: Optional SNMP version used for communication
         """
-        current_time = datetime.utcnow().isoformat()
+        current_time = datetime.now(UTC).isoformat()
         
         # Build the update query with ON CONFLICT clause
         query = """

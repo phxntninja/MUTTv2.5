@@ -35,7 +35,7 @@ class ArchiveManager:
             days_retention: Number of days to retain messages before archiving
         """
         # Calculate cutoff date
-        cutoff_date = datetime.datetime.utcnow() - datetime.timedelta(days=days_retention)
+        cutoff_date = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=days_retention)
         cutoff_str = cutoff_date.isoformat()
         
         # Select messages older than cutoff
@@ -52,7 +52,7 @@ class ArchiveManager:
             return
         
         # Generate archive filename with current timestamp
-        timestamp_str = datetime.datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp_str = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d_%H%M%S")
         filename = f"archive_{timestamp_str}.jsonl"
         filepath = os.path.join(self.archive_dir, filename)
         

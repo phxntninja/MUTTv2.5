@@ -10,7 +10,7 @@ import sys
 import os
 from typing import Dict, Any, Optional
 
-from mutt.config import load_config
+from mutt.config import load_config, CredentialLoader
 from mutt.logger import setup_logging, get_logger
 from mutt.listeners.syslog_listener import SyslogListener
 from mutt.listeners.snmp_listener import SNMPListener
@@ -23,6 +23,7 @@ class MUTTDaemon:
     def __init__(self):
         """Initialize the MUTT daemon."""
         self.config: Optional[Dict[str, Any]] = None
+        self.credentials = {}
         self.logger = get_logger(__name__)
         self.message_queue: Optional[asyncio.Queue] = None
         self.listeners = []
@@ -38,6 +39,10 @@ class MUTTDaemon:
             # Load configuration
             self.config = load_config(args.config)
             
+            # Load SNMPv3 Credentials
+            creds_path = self.config.get('snmpv3_credentials_file', 'config/snmpv3_credentials.yaml')
+            self.credentials = CredentialLoader.load_credentials(creds_path)
+            
             # Setup logging
             log_file = self.config.get('logging', {}).get('file', 'logs/mutt.log')
             debug = self.config.get('logging', {}).get('debug', False)
@@ -46,6 +51,8 @@ class MUTTDaemon:
             # Re-initialize logger after setup
             self.logger = get_logger(__name__)
             self.logger.info("Starting MUTT daemon")
+            if self.credentials:
+                self.logger.info(f"[MUTTDaemon] Loaded SNMPv3 credentials for {len(self.credentials)} users")
             
             # Create message queue
             self.message_queue = asyncio.Queue()
@@ -113,8 +120,11 @@ class MUTTDaemon:
                 host = snmp_config.get('host', '0.0.0.0')
                 snmp_listener = SNMPListener(
                     queue=self.message_queue,
+                    config=self.config,
                     port=port,
-                    host=host
+                    host=host,
+                    credentials_dict=self.credentials,
+                    auth_failure_tracker=self.processor.auth_failure_tracker
                 )
                 await snmp_listener.start()
                 self.listeners.append(snmp_listener)

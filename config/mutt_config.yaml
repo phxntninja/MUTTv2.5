@@ -3,3 +3,16 @@ network:
   snmp_port: 162
 storage:
   db_path: "data/messages.db"
+listeners:
+  syslog:
+    enabled: true
+    port: 5514
+    host: '0.0.0.0'
+  snmp:
+    enabled: true
+    port: 5162
+    host: '0.0.0.0'
+    communities:
+      - 'public'
+      - 'private'
+      - 'network-monitoring'

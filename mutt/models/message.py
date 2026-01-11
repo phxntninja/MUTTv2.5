@@ -4,7 +4,7 @@ Message data models for the Mutt log processing system.
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Optional, Dict, Any
 
@@ -47,7 +47,7 @@ class Message:
     severity: Severity
     payload: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 

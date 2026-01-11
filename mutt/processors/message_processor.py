@@ -11,6 +11,7 @@ import logging
 
 from mutt.storage.database import Database
 from mutt.storage.device_registry import DeviceRegistry
+from mutt.storage.auth_failure_tracker import AuthFailureTracker
 from mutt.processors.validator import Validator
 from mutt.processors.pattern_matcher import PatternMatcher
 from mutt.processors.enricher import Enricher
@@ -48,12 +49,15 @@ class MessageProcessor:
         db_path = self.config['storage']['db_path']
         self.database = Database(db_path)
         
+        # Other components
+        self.device_registry = DeviceRegistry(self.database)
+        self.auth_failure_tracker = AuthFailureTracker(self.database)
+        
         # FileBuffer
         buffer_dir = self.config['storage'].get('buffer_dir', 'buffer')
         self.file_buffer = FileBuffer(buffer_dir)
         
         # Other components
-        self.device_registry = DeviceRegistry(self.database)
         self.validator = Validator()
         
         # Load rules if rules_file exists in config

@@ -31,6 +31,15 @@ CREATE TABLE IF NOT EXISTS archives (
     record_count INTEGER
 );
 
+-- SNMPv3 Auth Failures table: Tracks failed authentication attempts
+CREATE TABLE IF NOT EXISTS snmpv3_auth_failures (
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    hostname TEXT,
+    num_failures INTEGER DEFAULT 1,
+    last_failure DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_messages_timestamp ON messages(timestamp);
 CREATE INDEX IF NOT EXISTS idx_messages_source_ip ON messages(source_ip);
@@ -38,4 +47,5 @@ CREATE INDEX IF NOT EXISTS idx_messages_type ON messages(type);
 CREATE INDEX IF NOT EXISTS idx_messages_severity ON messages(severity);
 CREATE INDEX IF NOT EXISTS idx_devices_last_seen ON devices(last_seen);
 CREATE INDEX IF NOT EXISTS idx_archives_dates ON archives(start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_snmpv3_failures_username ON snmpv3_auth_failures(username);
 """
