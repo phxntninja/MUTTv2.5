@@ -1,4 +1,5 @@
 pyyaml
 aiosqlite
-pysnmp-lextudio
-coloramapytest-asyncio
+pysnmp>=7.1.22
+colorama
+pytest-asyncio

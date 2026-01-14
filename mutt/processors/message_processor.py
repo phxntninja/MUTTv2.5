@@ -173,10 +173,19 @@ class MessageProcessor:
         """Main message processing loop."""
         logger.info("Message processing loop started")
         
+        last_log_time = 0
+        
         while self.running:
             try:
                 # Get message from queue with timeout to allow graceful shutdown
                 try:
+                    # Metric: Log queue size periodically if backed up
+                    qsize = self.queue.qsize()
+                    current_time = asyncio.get_running_loop().time()
+                    if qsize > 100 and (current_time - last_log_time) > 5.0:
+                        logger.warning(f"Message queue depth high: {qsize} messages pending")
+                        last_log_time = current_time
+                        
                     msg = await asyncio.wait_for(self.queue.get(), timeout=1.0)
                 except asyncio.TimeoutError:
                     continue
@@ -214,6 +223,7 @@ class MessageProcessor:
             await self.message_router.route(msg, matching_rules)
             
             # 5. Buffer for batch writing
+            # Note: file_buffer now implements memory buffering to reduce I/O
             await self.file_buffer.write(msg)
             
             logger.debug(f"Processed message: {msg.id}")
@@ -223,7 +233,8 @@ class MessageProcessor:
             
     async def batch_write_loop(self):
         """Batch write loop for periodically flushing buffered messages to database."""
-        flush_interval = self.config.get('batch_write_interval', 10)
+        # Reduced default interval to 2s to prevent large backlog on disk
+        flush_interval = self.config.get('batch_write_interval', 2)
         logger.info(f"Batch write loop started with {flush_interval}s interval")
         
         while self.running:

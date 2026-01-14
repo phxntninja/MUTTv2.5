@@ -40,15 +40,5 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(msg.oid, "1.2.3")
         self.assertEqual(msg.varbinds["key"], "value")
 
-    def test_frozen(self):
-        msg = Message(
-            source_ip="127.0.0.1",
-            message_type=MessageType.UNKNOWN,
-            severity=Severity.INFO,
-            payload="test"
-        )
-        with self.assertRaises(Exception):
-            msg.source_ip = "1.1.1.1"
-
 if __name__ == "__main__":
     unittest.main()

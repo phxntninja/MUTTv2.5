@@ -1,0 +1,30 @@
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# MUTT Data and Logs
+data/*.db
+logs/*.log
+logs/*.jsonl
+buffer/
+archives/
+mutt.log
+mutt.out
+mutt.err
+
+# System
+.DS_Store
+.idea/
+.vscode/
+*.swp

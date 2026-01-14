@@ -1,16 +1,16 @@
 network:
-  syslog_port: 5514
-  snmp_port: 162
+  syslog_port: 8514
+  snmp_port: 8162
 storage:
   db_path: "data/messages.db"
 listeners:
   syslog:
     enabled: true
-    port: 5514
+    port: 8514
     host: '0.0.0.0'
   snmp:
     enabled: true
-    port: 5162
+    port: 8162
     host: '0.0.0.0'
     communities:
       - 'public'

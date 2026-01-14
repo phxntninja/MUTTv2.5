@@ -136,17 +136,21 @@ class SNMPListener(BaseListener):
         self._is_running = True
         logger.info(f"SNMP listener started on {self.host}:{self.port} (v1/v2c/v3 support)")
 
-    def _cb_fun(self, snmpEngine, stateReference, contextEngineId, contextName, varBinds, cbCtx):
+    def _cb_fun(self, snmpEngine, stateReference, contextEngineId, contextName, varBinds, cbCtx=None):
         """Callback function for received traps."""
-        transportDomain, transportAddress = snmpEngine.msgAndPduDsp.getTransportInfo(stateReference)
-        source_ip = transportAddress[0]
+        if varBinds is None:
+            logger.warning("Received SNMP trap with no varBinds (None)")
+            return
+
+        try:
+            # pysnmp 7.x uses snake_case and transportAddress is a tuple (ip, port)
+            transportDomain, transportAddress = snmpEngine.msgAndPduDsp.get_transport_info(stateReference)
+            source_ip = transportAddress[0]
+        except Exception as e:
+            logger.error(f"Error getting transport info: {e}")
+            source_ip = "0.0.0.0"
         
-        # Extract metadata from the engine state
-        msg_extract = snmpEngine.msgAndPduDsp.getMsgProcessingModel(stateReference)
-        # Note: In a real app, we'd extract the securityName/username here to verify 
-        # which credential was used.
-        
-        # For this patch, we simulate the logic requested in Patch 6
+        # Dispatch processing to async task
         asyncio.create_task(self.process_trap(varBinds, source_ip, stateReference))
 
     async def process_trap(self, varBinds, source_ip: str, stateReference):
